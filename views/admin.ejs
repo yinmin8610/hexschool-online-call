@@ -1,30 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title><%= title %></title>
-
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   <link rel='stylesheet' href='/stylesheets/style.css' />
+  <title><%= title %></title>
 </head>
 
 <body>
   <div id="app" class="container">
     <div class="main">
-      <h1 class="title">{{ num }}</h1>
-      <p class="subtitle">前面等待：<span>{{ num - currentNumber }}</span> 組</p>
-
-      <ul class="list">
-        <li>目前叫號：<span>{{ currentNumber }}</span></li>
-        <li>更新時間：<span>{{ currentDate }}</span></li>
-      </ul>
+      <h1 class="title"><span class="h6">目前號碼：</span><br>{{ currentNumber }}</h1>
     </div>
-    <a href="#" class="btn btn-primary" type="button" @click.prevent="getNumber"
-      :class="user.length ? 'disabled' : ''">取號</a>
-    <a href="#" class="btn btn-outline-primary" href="https://www.hexschool.com/">
-      六角官網
+
+    <ul class="list-unstyled">
+      <li>總人數：{{ total }}</li>
+    </ul>
+    <a href="#" class="btn btn-primary mb-2" @click.prevent="clickNum('down')">
+      下一位
+    </a>
+    <a href="#" class="btn btn-outline-primary" @click.prevent="clickNum('up')"
+      :class="{'disabled': currentNumber <= 0}">
+      上一位
     </a>
   </div>
   <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
@@ -35,16 +34,11 @@
     new Vue({
       el: '#app',
       data: {
-        num: 0,
-        // totalNumber: 0,
         currentNumber: 0,
-        currentDate: 0,
-        user: [],
-        waitNumber: 0,
+        total: 0
       },
       methods: {
-        initializeApp() {
-
+        initializeApp(){
           //連接資料庫設定
           const firebaseConfig = {
             apiKey: "<%= fireClient.apiKey %>",
@@ -56,32 +50,25 @@
           const database = firebase.database();
 
           database.ref('/').on('value', (snapshot) => {
-            // console.log(snapshot.val());
-            this.num = snapshot.val().num;
-            this.currentDate = snapshot.val().currentDate;
             this.currentNumber = snapshot.val().currentNumber;
+            this.total = snapshot.val().user.num;
           })
         },
-        getNumber() {
-          axios.post('/').then((res) => {
-            if (res.data.status) {
-              console.log('取號成功');
-              //  將取號的資訊存在localStorage
-              const userNum = JSON.stringify(res.data.user);
-              localStorage.setItem('USER', userNum);
-              const data = JSON.parse(localStorage.getItem('USER')) || {};
-              this.user = data;
-            }
+        clickNum(item) {
+          let cacheNumber = this.currentNumber;
+          if(item === 'down') {
+            cacheNumber += 1;
+          } else {
+            cacheNumber -= 1;
+          }
+          axios.post('/hexschoolAdmin', { currentNumber: cacheNumber }).then((res) => {
+            console.log(res.data);
           })
         }
       },
       created() {
         this.initializeApp();
-
-        // 將取號資訊從localStorage中取出
-        const data = JSON.parse(localStorage.getItem('USER')) || {};
-        this.user = data;
-      },
+      }
     })
   </script>
 </body>
