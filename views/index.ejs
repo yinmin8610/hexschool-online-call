@@ -21,7 +21,7 @@
         <h2 class="title"><span class="h6">目前叫號:</span><br>{{ currentNumber }}</h2>
 
         <ul class="list-unstyled d-flex justify-content-between">
-          <li><small v-if="num && user.length">前面等待：{{ num - currentNumber }}組</small></li>
+          <li><small v-if="num && user.length">前面等待：{{ num - currentNumber }} 組</small></li>
           <li><small>更新時間：{{ currentDate }}</small></li>
         </ul>
       </div>
@@ -31,7 +31,8 @@
     <a href="https://www.hexschool.com/" class="btn btn-outline-primary mb-4 btn-block" target="_blank">
       六角官網
     </a>
-    <a href="#" class="btn btn-outline-danger btn-block" data-toggle="modal" data-target="#cancelModal" :class="{'disabled': !user.length}">取消等待</a>
+    <a href="#" class="btn btn-outline-danger btn-block" data-toggle="modal" data-target="#cancelModal"
+      :class="{'disabled': !user.length}">取消等待</a>
 
     <!-- Modal -->
     <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -42,8 +43,9 @@
             <h5>確定取消等待？</h5>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">再考慮一下</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close" @click.prevent="cancel">我要取消</button>
+            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">再考慮一下</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+              @click.prevent="cancel">我要取消</button>
           </div>
         </div>
       </div>
@@ -89,6 +91,10 @@
           axios.get('/getData').then((res) => {
             this.currentDate = res.data.currentDate;
             this.currentNumber = res.data.currentNumber;
+          }).then(() => {
+            setTimeout(() => {
+              this.getData();
+            }, 10000);
           })
         },
         cancel() {
@@ -105,11 +111,7 @@
         }
 
         this.getData();
-        setTimeout(() => {
-          setInterval(() => {
-            this.getData();
-          }, 5000);
-        }, 3000);
+
       },
     })
   </script>
