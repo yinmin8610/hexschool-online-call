@@ -13,20 +13,24 @@
 
 <body>
   <div id="app" class="container">
-    <div class="main">
-      <h1 class="title">{{ num }}</h1>
-      <p class="subtitle">前面等待：<span>{{ num - currentNumber }}</span> 組</p>
-
-      <ul class="list">
-        <li>目前叫號：<span>{{ currentNumber }}</span></li>
-        <li>更新時間：<span>{{ currentDate }}</span></li>
-      </ul>
+    <div class="bg p-4">
+      <div class="main">
+        <h2 class="title"><span class="h6">您的號碼:</span><br>{{ num }}</h2>
+        <hr>
+        <h2 class="title"><span class="h6">目前叫號:</span><br>{{ currentNumber }}</h2>
+      
+        <ul class="list-unstyled d-flex justify-content-between">
+          <li><small>前面等待：{{  num - currentNumber }}組</small></li>
+          <li><small>更新時間：{{ currentDate }}</small></li>
+        </ul>
+      </div>
     </div>
     <a href="#" class="btn btn-primary" type="button" @click.prevent="getNumber"
       :class="user.length ? 'disabled' : ''">取號</a>
-    <a href="https://www.hexschool.com/" class="btn btn-outline-primary" target="_blank">
+    <a href="https://www.hexschool.com/" class="btn btn-outline-primary mb-4" target="_blank">
       六角官網
     </a>
+    <a href="#" class="btn text-danger">取消</a>
   </div>
   <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>

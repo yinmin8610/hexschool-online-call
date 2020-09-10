@@ -9,24 +9,24 @@ a{
   text-decoration:none;
 }
 .container{
-  max-width: 300px;
+  max-width: 350px;
   margin: 0 auto;
 }
-.main{
-  background: #69F0AE;
-  padding: 1rem;
-  border-radius: 0.5rem;
+.bg{
+  background: #02241A;
   margin-bottom: 1.5rem;
 }
+.main{
+  background-color: #69F0AE;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
 .title{
+  color:#02241A;
   font-size: 3rem;
   text-align: center;
   margin-bottom: 0.25rem;
-  padding: 7rem 0;
-}
-.subtitle{
-  font-size: 1rem;
-  
+  padding: 1rem 0;
 }
 .btn{
   display: block;
