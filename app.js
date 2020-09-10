@@ -7,6 +7,8 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var adminRouter = require('./routes/admin');
 
+const favicon = require('express-favicon');
+
 var app = express();
 
 // view engine setup
@@ -21,6 +23,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/hexschoolAdmin', adminRouter);
+
+app.use(favicon(__dirname + '/public/images/favicon.ico'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

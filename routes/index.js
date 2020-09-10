@@ -6,15 +6,7 @@ const firebaseRef = firebaseAdmin.ref('/');
 const firebaseRefs = firebaseRef.push();
 
 router.get('/', function (req, res, next) {
-  res.render('index', {
-    title: '六角線上排隊',
-    fireClient: {
-      apiKey: process.env.FIREBASE_APIKEY,
-      authDomain: process.env.FIREBASE_AUTHDOMAIN,
-      databaseURL: process.env.FIREBASE_DATABASEURL,
-      storageBucket: process.env.FIREBASE_STORAGEBUCKET,
-    }
-  });
+  res.render('index', { title: '六角線上排隊' });
 });
 
 router.post('/', function (req, res, next) {
@@ -50,6 +42,22 @@ router.post('/', function (req, res, next) {
     res.end();
   })
 
+})
+
+router.get('/getData', function (req, res, next) {
+  let currentDate = '';
+  let currentNumber = '';
+  firebaseRef.once('value').then((snapshot) => {
+    currentDate = snapshot.val().currentDate;
+    currentNumber = snapshot.val().currentNumber;
+
+  }).then(()=>{
+    res.send({
+      currentDate,
+      currentNumber,
+    })
+    res.end();
+  })
 })
 
 

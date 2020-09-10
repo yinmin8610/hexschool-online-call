@@ -15,58 +15,63 @@
   <div id="app" class="container">
     <div class="bg p-4">
       <div class="main">
-        <h2 class="title"><span class="h6">您的號碼:</span><br>{{ num }}</h2>
+        <h2 class="title" v-if="num && user.length"><span class="h6">您的號碼:</span><br>{{ num }}</h2>
+        <h2 class="title" style="height: 146px;" v-else><span class="h6">請取號。</span></h2>
         <hr>
         <h2 class="title"><span class="h6">目前叫號:</span><br>{{ currentNumber }}</h2>
-      
+
         <ul class="list-unstyled d-flex justify-content-between">
-          <li><small>前面等待：{{  num - currentNumber }}組</small></li>
+          <li><small v-if="num && user.length">前面等待：{{ num - currentNumber }}組</small></li>
           <li><small>更新時間：{{ currentDate }}</small></li>
         </ul>
       </div>
     </div>
-    <a href="#" class="btn btn-primary" type="button" @click.prevent="getNumber"
+    <a href="#" class="btn btn-primary btn-block" type="button" @click.prevent="getNumber"
       :class="user.length ? 'disabled' : ''">取號</a>
-    <a href="https://www.hexschool.com/" class="btn btn-outline-primary mb-4" target="_blank">
+    <a href="https://www.hexschool.com/" class="btn btn-outline-primary mb-4 btn-block" target="_blank">
       六角官網
     </a>
-    <a href="#" class="btn text-danger">取消</a>
+    <a href="#" class="btn btn-outline-danger btn-block" data-toggle="modal" data-target="#cancelModal" :class="{'disabled': !user.length}">取消等待</a>
+
+    <!-- Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <h5>確定取消等待？</h5>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">再考慮一下</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close" @click.prevent="cancel">我要取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+    integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+    integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+    crossorigin="anonymous"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js'></script>
   <script>
     new Vue({
       el: '#app',
       data: {
         num: 0,
-        // totalNumber: 0,
         currentNumber: 0,
         currentDate: 0,
         user: [],
-        waitNumber: 0,
       },
       methods: {
-        initializeApp() {
-
-          //連接資料庫設定
-          const firebaseConfig = {
-            apiKey: "<%= fireClient.apiKey %>",
-            authDomain: "<%= fireClient.authDomain %>",
-            databaseURL: "<%= fireClient.databaseURL %>",
-            storageBucket: "<%= fireClient.storageBucket %>",
-          };
-          firebase.initializeApp(firebaseConfig);
-          const database = firebase.database();
-
-          database.ref('/').on('value', (snapshot) => {
-            // console.log(snapshot.val());
-            this.num = snapshot.val().num;
-            this.currentDate = snapshot.val().currentDate;
-            this.currentNumber = snapshot.val().currentNumber;
-          })
-        },
         getNumber() {
           axios.post('/').then((res) => {
             if (res.data.status) {
@@ -76,16 +81,35 @@
               localStorage.setItem('USER', userNum);
               const data = JSON.parse(localStorage.getItem('USER')) || {};
               this.user = data;
+              this.num = res.data.num;
             }
           })
+        },
+        getData() {
+          axios.get('/getData').then((res) => {
+            this.currentDate = res.data.currentDate;
+            this.currentNumber = res.data.currentNumber;
+          })
+        },
+        cancel() {
+          localStorage.removeItem('USER');
+          this.user = [];
         }
       },
       created() {
-        this.initializeApp();
-
         // 將取號資訊從localStorage中取出
-        const data = JSON.parse(localStorage.getItem('USER')) || {};
-        this.user = data;
+        const data = JSON.parse(localStorage.getItem('USER'));
+        if (data) {
+          this.user = data;
+          this.num = this.user[0].num;
+        }
+
+        this.getData();
+        setTimeout(() => {
+          setInterval(() => {
+            this.getData();
+          }, 5000);
+        }, 3000);
       },
     })
   </script>
